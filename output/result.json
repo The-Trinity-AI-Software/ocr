@@ -1,0 +1,15 @@
+{
+    "ocr_text": "",
+    "first_name": "",
+    "last_name": "",
+    "license_number": "",
+    "dob": "",
+    "issue_date": "",
+    "expiry_date": "",
+    "address": "",
+    "gender": "",
+    "category": "",
+    "nationality": "USA",
+    "summary": "",
+    "threshold": 0.34
+}

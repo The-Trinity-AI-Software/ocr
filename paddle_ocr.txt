@@ -1,0 +1,14 @@
+document_face_matcher/
+│
+├── app.py                      # Flask app entry
+├── requirements.txt
+├── utils/
+│   ├── aws_utils.py            # Load from AWS
+│   ├── azure_utils.py          # Save to Azure
+│   ├── ocr_utils.py            # PaddleOCR logic
+│   ├── face_utils.py           # YOLO + Face Matching
+│   └── similarity_utils.py     # Cosine similarity
+├── templates/
+│   └── index.html              # Upload + results page
+└── static/
+    └── uploads/                # Uploaded images

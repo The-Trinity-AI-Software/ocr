@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>License OCR + LLM Summary</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+    .container {
+      max-width: 950px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h2, h3 { margin-bottom: 20px; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 8px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px;
+    }
+    button {
+      margin-top: 20px; padding: 10px 20px; font-size: 16px;
+      background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;
+    }
+    button:hover { background-color: #0056b3; }
+    .status {
+      margin-top: 20px; padding: 10px;
+      font-weight: bold; border-radius: 5px;
+    }
+    .status.ok { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status.fail { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .downloads a {
+      text-decoration: none; background: #28a745; color: white;
+      padding: 10px 20px; margin-right: 10px; border-radius: 6px; display: inline-block;
+    }
+    .preview-img { max-width: 250px; margin-top: 20px; border: 1px solid #ccc; border-radius: 8px; }
+    textarea { width: 100%; margin-top: 10px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+    .summary-box {
+      background: #fdf8e4;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-style: italic;
+      border-left: 5px solid #ffc107;
+    }
+  </style>
+  <script>
+    function updateThresholdValue(val) {
+      document.getElementById("thresholdValue").textContent = val;
+      let desc = "🔍 Moderate filtering";
+      if (val >= 0.8) desc = "✅ Strict match confidence";
+      else if (val <= 0.3) desc = "⚠️ Loose, may mismatch";
+      document.getElementById("thresholdDesc").textContent = desc;
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h2>🪪 Paddle OCR ( Driving License )</h2>
+    <form method="POST">
+      <label>AWS Access Key:</label>
+      <input type="text" name="access_key" placeholder="Enter once per session">
+      <label>AWS Secret Key:</label>
+      <input type="password" name="secret_key" placeholder="Enter once per session">
+
+      <label>S3 File URI (e.g. s3://bucket/license.jpg):</label>
+      <input type="text" name="doc_s3_uri" required>
+
+      <label>Similarity Threshold (0.0 - 1.0):</label>
+      <input type="range" name="threshold" min="0.0" max="1.0" step="0.01" value="0.5"
+             oninput="updateThresholdValue(this.value)">
+      <output id="thresholdValue">0.5</output>
+      <p id="thresholdDesc">🔍 Moderate filtering</p>
+
+      <button type="submit">📤 Extract Text</button>
+      <button type="button" onclick="window.location.reload()">🔁 Reset Session</button>
+    </form>
+
+    {% if connection_status %}
+      <div id="s3status" class="status {{ 'fail' if '❌' in connection_status else 'ok' }}">
+        {{ connection_status }}
+      </div>
+    {% endif %}
+
+    {% if result %}
+      <div style="margin-top: 30px;">
+        <h3>📄 Extracted OCR Text</h3>
+        {% if ocr_image_path %}
+          <img src="{{ url_for('uploaded_file', filename=ocr_image_path.split('/')[-1]) }}" class="preview-img">
+        {% endif %}
+        <textarea rows="6" readonly>{{ result['ocr_text'] }}</textarea>
+
+        <h3>📌 LLM-Summarized License Info</h3>
+        <div class="summary-box">{{ result['summary'] }}</div>
+
+        <h3>🗂 Structured Fields</h3>
+        <ul>
+          {% for key, val in result.items() %}
+            {% if key not in ['ocr_text', 'summary'] %}
+              <li><strong>{{ key.replace('_', ' ').title() }}:</strong> {{ val }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+
+        <div class="downloads">
+          <a href="{{ url_for('download_json') }}">⬇️ Download JSON</a>
+          <a href="{{ url_for('download_csv') }}">⬇️ Download CSV</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
