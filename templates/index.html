@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>License OCR + LLM Summary</title>
+  <title>PADDLE OCR</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
     .container {
@@ -56,14 +56,14 @@
 </head>
 <body>
   <div class="container">
-    <h2>🪪 Paddle OCR ( Driving License )</h2>
+    <h2>🪪 PADDLE OCR </h2>
     <form method="POST">
       <label>AWS Access Key:</label>
       <input type="text" name="access_key" placeholder="Enter once per session">
       <label>AWS Secret Key:</label>
       <input type="password" name="secret_key" placeholder="Enter once per session">
 
-      <label>S3 File URI (e.g. s3://bucket/license.jpg):</label>
+      <label>Image Source ( AWS S3 ):</label>
       <input type="text" name="doc_s3_uri" required>
 
       <label>Similarity Threshold (0.0 - 1.0):</label>
@@ -90,7 +90,7 @@
         {% endif %}
         <textarea rows="6" readonly>{{ result['ocr_text'] }}</textarea>
 
-        <h3>📌 LLM-Summarized License Info</h3>
+        <h3>📌 LLM-Summarized Info (Llama)</h3>
         <div class="summary-box">{{ result['summary'] }}</div>
 
         <h3>🗂 Structured Fields</h3>
