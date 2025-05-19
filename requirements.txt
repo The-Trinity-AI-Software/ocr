@@ -1,0 +1,11 @@
+flask
+boto3
+opencv-python
+numpy
+paddleocr
+pdf2image
+scikit-learn
+deepface
+insightface
+transformers
+azure-storage-blob
