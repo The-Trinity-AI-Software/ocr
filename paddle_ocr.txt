@@ -1,4 +1,4 @@
-document_face_matcher/
+ocr/
 │
 ├── app.py                      # Flask app entry
 ├── requirements.txt
