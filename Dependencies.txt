@@ -1,0 +1,5 @@
+paddleocr depends on paddlepaddle, ensure CPU version is used (paddlepaddle==2.5.2) unless using GPU.
+deepface internally may use tensorflow, but you're currently not depending on it explicitly due to insightface usage.
+Need to install system packages like poppler for pdf2image:
+sudo apt-get install poppler-utils  # Linux
+brew install poppler                # macOS
