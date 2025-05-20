@@ -1,7 +1,7 @@
 import os
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"  # Suppress oneDNN warning
 
-from flask import Flask, request, render_template, send_file, send_from_directory, session
+from flask import Flask, request, render_template, send_file, send_from_directory
 import json, csv
 from utils.ocr_utils import extract_text_with_llm
 from utils.aws_utils import download_single_image_from_s3
@@ -20,33 +20,22 @@ def index():
 
     if request.method == "POST":
         s3_uri = request.form.get("doc_s3_uri")
-        threshold = float(request.form.get("threshold", 0.5))  # Capture threshold
-        prev_keys = session.get("s3_keys", {})
-
-        # If first time keys provided, store them
-        if 'access_key' in request.form and 'secret_key' in request.form:
-            access_key = request.form["access_key"]
-            secret_key = request.form["secret_key"]
-            session["s3_keys"] = {"access_key": access_key, "secret_key": secret_key}
-        elif not prev_keys:
-            status = "❌ AWS keys required for first-time setup."
-            return render_template("index.html", result=None, connection_status=status)
+        threshold = float(request.form.get("threshold", 0.5))
 
         try:
-            creds = session["s3_keys"]
+            # 🔒 Uses hardcoded AWS keys inside utils/aws_utils.py
             downloaded = download_single_image_from_s3(
-                creds["access_key"], creds["secret_key"],
                 s3_uri, app.config['UPLOAD_FOLDER']
             )
             image_path = downloaded[0]
             ocr_image_path = os.path.relpath(image_path, "static").replace("\\", "/")
 
-            # Run OCR and LLM
+            # 🧠 Run OCR + NER + Summary
             result = extract_text_with_llm(image_path)
             result["ocr_text"] = result.pop("full_text", "")
             result["threshold"] = threshold
 
-            # Save results
+            # 💾 Save results
             with open("output/result.json", "w") as jf:
                 json.dump(result, jf, indent=4)
             with open("output/result.csv", "w", newline="") as cf:
@@ -60,6 +49,7 @@ def index():
             status = f"❌ Error during OCR: {str(e)}"
 
     return render_template("index.html", result=result, connection_status=status, ocr_image_path=ocr_image_path)
+
 
 @app.route("/download/json")
 def download_json():
