@@ -5,8 +5,9 @@ from flask import Flask, request, render_template, send_file, send_from_director
 import json, csv
 from utils.ocr_utils import extract_text_with_llm
 from utils.aws_utils import download_single_image_from_s3
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.secret_key = "replace_with_secure_random_string"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -64,4 +65,4 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=7010)
+    app.run(host='0.0.0.0', debug=True, port=9098)
